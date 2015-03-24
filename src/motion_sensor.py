@@ -6,40 +6,37 @@ triggered to record the camera frames.
 
 """
 
-import RPi.GPIO as GPIO
+import RPi.GPIO as gpio
 import logging
-
-"""GPIO ID where the motion sensor is connected to."""
-GPIO_ID_MOTION_SENSOR = 10
 
 """Invokes callback function if motion sensor triggers."""
 class MotionSensor:
 
     """Constructor."""
-    def __init__(self, gpio_id=GPIO_ID_MOTION_SENSOR, callback=None):
-        self._gpio_id = gpio_id
-        self._callback = callback
-        logging.info('MotionSensor: initialized with GPIO ID = ' +
-                     str(self._gpio_id) + ' and callback = ' +
-                     str(self._callback) + '.')
+    def __init__(self, gpio_pin, callback):
+	"""init attributes"""
+        self._gpio_pin = gpio_pin
+        self.setcallback(callback)
+
+	"""set pin connected to motion sensor as input"""
+	gpio.setmode(gpio.BOARD)
+	gpio.setup(self._gpio_pin, gpio.IN, pull_up_down=gpio.PUD_UP)
+
+	logging.debug('MotionSensor: ' + str(self.__dict__))
 
     """Pass function that should be called when motion sensor triggers."""
     def setcallback(self, fct):
         if callable(fct):
             self._callback = fct
-            logging.info('MotionSensor: callback function set to ' + str(fct) + '.')
+            logging.debug('MotionSensor: ' + str(fct) + ' will be called when edge detected.')
         else:
             raise Exception('MotionSensor: The passed parameter is not callable!')
 
-    def gpio_callback(self, gpio_id, value):
+    def gpio_callback(self, gpio_pin):
+	logging.debug('MotionSensor: edge detected.')
         self._callback()
 
     """Periodically check the motion sensor."""
     def start(self):
-        """register interrupt"""
-        GPIO.add_interrupt_callback(self._gpio_id, self.gpio_callback,
-                                    edge='falling',
-                                    threaded_callback=False)
-        logging.info('MotionSensor: GPIO interrupt registered.')
-        GPIO.wait_for_interrupts(threaded=True)
+	gpio.add_event_detect(self._gpio_pin, gpio.FALLING, callback=self.gpio_callback)
         logging.info('MotionSensor: started.')
