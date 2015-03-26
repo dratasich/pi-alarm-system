@@ -10,3 +10,4 @@
 ## References
 
 - picamera Package API Documentation: http://picamera.readthedocs.org
+- RPi.GPIO Package API Documentation: http://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/

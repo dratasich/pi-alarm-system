@@ -6,6 +6,7 @@
 import logging
 import sys
 from motion_sensor import MotionSensor
+from camera import PictureSaver
 
 MOTION_SENSOR_PIN = 10
 
@@ -27,10 +28,15 @@ try:
     motion_sensor.start()
     logging.info('Make sure the motion sensor is connected to GPIO pin ' + 
 		 str(MOTION_SENSOR_PIN) + '.')
+
+    pic_saver = PictureSaver()
+    pic_saver.capture()
+
 except RuntimeWarning as e:
     logging.warn(e)
 except Exception as e:
     logging.error(e)
+    raise
 except:
     logging.error('Unexpected error.')
     raise
