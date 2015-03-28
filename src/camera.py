@@ -14,6 +14,8 @@ import time
 
 RESOLUTION = (1280, 720)
 VIDEO_LENGTH = 20
+IMG_PREFIX = "picam_"
+IMG_SUFFIX = ""
 
 ##
 # @brief Saves pictures to files when triggered.
@@ -32,7 +34,6 @@ class CameraController:
         # make ready
         self._camera.start_preview()
         time.sleep(2)
-        self._camera.start_recording()
         logging.debug('CameraController: started.')
 
     def __exit__(self):
@@ -43,7 +44,7 @@ class CameraController:
     # @brief Captures a single picture and saves it to the server.
     ##
     def capture(self):
-        filename = strftime('picam_%y-%m-%d_%H-%M-%S', localtime()) + '.jpg'
+        filename = IMG_PREFIX + time.strftime('%y-%m-%d_%H-%M-%S', time.localtime()) + IMG_SUFFIX + '.jpg'
         self._camera.capture(filename)
 
     ##
