@@ -1,19 +1,21 @@
 #!/usr/bin/python
-"""@file
-
-"""
+##
+# @file
+# @author Denise Ratasich
+# @date 22.03.2015
+##
 
 import logging
 import sys
 from motion_sensor import MotionSensor
-from camera import PictureSaver
+from camera import CameraController
 
 MOTION_SENSOR_PIN = 10
 
 def callback():
     print 'test'
 
-"""set logging settings"""
+# set logging settings
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
 ch = logging.StreamHandler(sys.stdout)
@@ -23,14 +25,14 @@ ch.setFormatter(formatter)
 root.addHandler(ch)
 
 try:
-    """test motion sensor class"""
+    # test motion sensor class
     motion_sensor = MotionSensor(MOTION_SENSOR_PIN, callback)
     motion_sensor.start()
     logging.info('Make sure the motion sensor is connected to GPIO pin ' + 
 		 str(MOTION_SENSOR_PIN) + '.')
 
-    pic_saver = PictureSaver()
-    pic_saver.capture()
+    cam = CameraController()
+    cam.capture()
 
 except RuntimeWarning as e:
     logging.warn(e)
