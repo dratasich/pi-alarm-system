@@ -7,13 +7,15 @@
 
 import logging
 import sys
-from motion_sensor import MotionSensor
+import time
+import gpio
 from camera import CameraController
 
-MOTION_SENSOR_PIN = 10
+PIN_MOTION_SENSOR = 15  # pin from the motion sensor near the camera (directly)
+PIN_ALARM = 16          # additional pin from the alarm system switch
 
-def callback():
-    print 'test'
+def callback_motion_sensor():
+    print 'Motion sensor: detection!'
 
 # set logging settings
 root = logging.getLogger()
@@ -24,18 +26,24 @@ formatter = logging.Formatter('[%(asctime)s] [%(levelname)5s]: %(message)s')
 ch.setFormatter(formatter)
 root.addHandler(ch)
 
+# main
 try:
-    # test motion sensor class
-    motion_sensor = MotionSensor(MOTION_SENSOR_PIN, callback)
+    # test motion sensor
+    motion_sensor = gpio.EdgeMonitor(PIN_MOTION_SENSOR, gpio.FALLING, callback_motion_sensor)
     motion_sensor.start()
     logging.info('Make sure the motion sensor is connected to GPIO pin ' + 
-		 str(MOTION_SENSOR_PIN) + '.')
+		 str(PIN_MOTION_SENSOR) + '.')
 
-    cam = CameraController()
-    cam.capture()
+    #cam = CameraController()
+    #cam.capture()
+
+    while True:
+        time.sleep(3600)        # sleep for an hour or so
 
 except RuntimeWarning as e:
     logging.warn(e)
+except KeyboardInterrupt:
+    logging.info('exit by user')
 except Exception as e:
     logging.error(e)
     raise
