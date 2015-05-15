@@ -34,7 +34,7 @@ flag_p=0
 port=$PORT
 
 # parse options
-temp=$(getopt lp: "$@")
+temp=$(getopt hlp: "$@")
 
 # error in parsing
 if [ $? -ne 0 ]
@@ -46,6 +46,9 @@ fi
 while [ $# -gt 0 ]
 do
     case "$1" in
+	(-h)
+	    usage
+	    ;;
 	(-l)
 	    flag_l=1
 	    ;;
@@ -55,7 +58,6 @@ do
 		echo "$0: error - option -p is only allowed when -l is set" 1>&2
 		usage
 	    else
-		echo "-p $2"
 		flag_p=1
 		port=$2
 	    fi
@@ -86,8 +88,9 @@ then
     ip=$(ifconfig  | grep 'inet addr:' | grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}')
     echo "$0: provide livestream at 'rtsp://$ip:$port'"
     echo "$0: log file for lifestream is ${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}"
-    raspivid -t 0 -o - -w 800 -h 600 | cvlc -v stream:///dev/stdin --sout '#rtp{sdp=rtsp://:$port}' :demux=h264 > "$DIR/$LOG_DIR/$LOG_FILE_STREAM"
+    raspivid -t 0 -o - -w 800 -h 600 | cvlc -vvv stream:///dev/stdin --sout '#rtp{sdp=rtsp://:'"${port}"'}' :demux=h264 > "$DIR/$LOG_DIR/$LOG_FILE_STREAM" 2>&1 &
 fi
 
 # start video and image capture by motion sensor
 echo "$0: start motion detection"
+
