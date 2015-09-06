@@ -16,7 +16,9 @@ import logging
 RISING = 1
 FALLING = 0
 
+##
 # @brief Invokes callback function if GPIO triggers.
+##
 class EdgeMonitor:
 
     ##
@@ -52,7 +54,7 @@ class EdgeMonitor:
         self._callback()
 
     ##
-    # @brief Periodically check the sensor.
+    # @brief Install callback for edge detection (and start).
     ##
     def start(self):
 	gpio.add_event_detect(self._gpio_pin, self._edge, callback=self.gpio_callback)
