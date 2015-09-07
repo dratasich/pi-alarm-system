@@ -7,6 +7,7 @@
 
 DIR="$HOME/.pi-alarm-system"
 STREAM_DIR="stream"
+REC_DIR="recordings"
 LOG_DIR="log"
 LOG_FILE_STREAM="mjpg_streamer.log"
 LOG_FILE_ALARM="alarm_system.log"
@@ -26,7 +27,7 @@ if [ $? -eq 0 ]
 then
     echo "$0: killed running mjpg_streamer processes"
 fi
-killall alarm_system.py > /dev/null 2>&1
+sudo killall alarm_system.py > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
     echo "$0: killed running alarm_system processes"
@@ -85,6 +86,10 @@ then
     LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i "input_file.so -f ${DIR}/${STREAM_DIR} -n pic.jpg" -o "output_http.so -w ./www" > "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}" 2>&1 &
 fi
 
+# make log dir for images/videos if it does not exist (-p)
+mkdir -p "${DIR}/${REC_DIR}"
+echo "$0: directory for log-files created: ${DIR}/${REC_DIR}/"
+
 # start video and image capture by motion sensor
 echo "$0: start motion detection"
-sudo ./src/alarm_system.py -h > "${DIR}/${LOG_DIR}/${LOG_FILE_ALARM}" 2>&1 &
+sudo ./src/alarm_system.py -m 15 --recordings "${DIR}/${REC_DIR}/" --stream "${DIR}/${STREAM_DIR}/pic.jpg" > "${DIR}/${LOG_DIR}/${LOG_FILE_ALARM}" 2>&1 &

@@ -13,7 +13,8 @@ network stream (mjpg) is provided on port 8080.
 - [X] trigger picamera to record a picture and video when motion is
       detected
 - [X] provide interface for live stream (via mjpg streamer)
-- [ ] capture images for mjpg streamer
+- [X] capture images for mjpg streamer
+- [ ] mount server and save data to server
 
 
 ## Network stream only
