@@ -6,35 +6,37 @@
 ##
 
 DIR="$HOME/.pi-alarm-system"
+STREAM_DIR="stream"
 LOG_DIR="log"
-LOG_FILE_STREAM="stream.log"
-LOG_FILE_ALARM="alarm-system.log"
-PORT=1816
+LOG_FILE_STREAM="mjpg_streamer.log"
+LOG_FILE_ALARM="alarm_system.log"
 
 # print usage and exit
 usage()
 {
-    echo "Usage: $0 [-l [-p PORT]]" 1>&2
-    echo "  -l       Activate lifestream. Default port is $PORT." 1>&2
-    echo "  -p PORT  Set the port to the lifestream to a different value PORT." 1>&2
-    echo "           The lifestream is accessible through 'rtsp://192.168.1.45:PORT/' (e.g., VLC media player)" 1>&2
+    echo "Usage: $0 [-l]" 1>&2
+    echo "  -l       Activate lifestream." 1>&2
+    echo "           The lifestream is accessible through 'http://<IP of RaspberryPI>:8080/' (e.g., browser, VLC media player)" 1>&2
     exit 1
 }
 
 # kill running instances
-killall raspivid > /dev/null 2>&1
+killall mjpg_streamer > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
-    echo "$0: killed running raspivid processes"
+    echo "$0: killed running mjpg_streamer processes"
+fi
+killall alarm_system.py > /dev/null 2>&1
+if [ $? -eq 0 ]
+then
+    echo "$0: killed running alarm_system processes"
 fi
 
 # check arguments
 flag_l=0
-flag_p=0
-port=$PORT
 
 # parse options
-temp=$(getopt hlp: "$@")
+temp=$(getopt hl "$@")
 
 # error in parsing
 if [ $? -ne 0 ]
@@ -51,16 +53,6 @@ do
 	    ;;
 	(-l)
 	    flag_l=1
-	    ;;
-	(-p)
-	    if [ $flag_l -eq 0 ]
-	    then
-		echo "$0: error - option -p is only allowed when -l is set" 1>&2
-		usage
-	    else
-		flag_p=1
-		port=$2
-	    fi
 	    ;;
 	(--)
 	    shift
@@ -80,17 +72,19 @@ done
 
 # make log dir if it does not exist (-p)
 mkdir -p "${DIR}/${LOG_DIR}"
-echo "$0: directories for log-files created: ${DIR}/${LOG_DIR}/"
+echo "$0: directory for log-files created: ${DIR}/${LOG_DIR}/"
 
 # provide lifestream
 if [ $flag_l -eq 1 ]
 then
-    ip=$(ifconfig  | grep 'inet addr:' | grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}')
-    echo "$0: provide livestream at 'rtsp://$ip:$port'"
-    echo "$0: log file for lifestream is ${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}"
-    raspivid -t 0 -o - -w 800 -h 600 | cvlc -vvv stream:///dev/stdin --sout '#rtp{sdp=rtsp://:'"${port}"'}' :demux=h264 > "$DIR/$LOG_DIR/$LOG_FILE_STREAM" 2>&1 &
+    # make stream dir if it does not exist (-p)
+    mkdir -p "${DIR}/${STREAM_DIR}"
+    echo "$0: directory for stream created: ${DIR}/${STREAM_DIR}/"
+
+    # start mjpg-streamer (uses pic.jpg in stream directory as input)
+    LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i "input_file.so -f ${DIR}/${STREAM_DIR} -n pic.jpg" -o "output_http.so -w ./www" > "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}" 2>&1 &
 fi
 
 # start video and image capture by motion sensor
 echo "$0: start motion detection"
-
+sudo ./src/alarm_system.py -h > "${DIR}/${LOG_DIR}/${LOG_FILE_ALARM}" 2>&1 &

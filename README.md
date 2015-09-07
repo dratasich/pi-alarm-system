@@ -5,14 +5,15 @@
 Start alarm_system.py to capture images when motion is detected (via
 external motion sensor connected to a GPIO pin). Video is recorded in
 a circular buffer and saved too when motion is detected. Furthermore a
-network stream is provided on a defined port.
+network stream (mjpg) is provided on port 8080.
 
 ### TODOs
 
 - [X] read from GPIO if motion sensor detects a movement
 - [X] trigger picamera to record a picture and video when motion is
       detected
-- [ ] provide interface for live stream (reconnect should be possible)
+- [X] provide interface for live stream (via mjpg streamer)
+- [ ] capture images for mjpg streamer
 
 
 ## Network stream only
@@ -32,7 +33,9 @@ address: 'rtsp://192.168.1.45:1618/'.
   reboot: 
   	  disable_camera_led=1
 
+
 ## References
 
 - picamera Package API Documentation: http://picamera.readthedocs.org
 - RPi.GPIO Package API Documentation: http://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/
+- mjpg-streamer Installation: http://blog.miguelgrinberg.com/post/how-to-build-and-run-mjpg-streamer-on-the-raspberry-pi
