@@ -3,14 +3,23 @@
 # @file
 # @author Denise Ratasich
 # @date 28.03.2015
+#
+# Script is started by cron at reboot with root privileges. See 'sudo
+# crontab -e'.
 ##
 
-DIR="$HOME/.pi-alarm-system"
+# only limited path variables at startup, add necessary paths
+PATH=$PATH:/usr/local/bin # mjpg_streamer, python is already in the path
+HOME=/home/pi
+
+# directories
+DIR="${HOME}/.pi-alarm-system"
 STREAM_DIR="stream"
 REC_DIR="recordings"
 LOG_DIR="log"
 LOG_FILE_STREAM="mjpg_streamer.log"
 LOG_FILE_ALARM="alarm_system.log"
+SRC="${HOME}/pi-alarm-system"
 
 # print usage and exit
 usage()
@@ -83,7 +92,7 @@ then
     echo "$0: directory for stream created: ${DIR}/${STREAM_DIR}/"
 
     # start mjpg-streamer (uses pic.jpg in stream directory as input)
-    LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i "input_file.so -f ${DIR}/${STREAM_DIR} -n pic.jpg" -o "output_http.so -w ./www" > "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}" 2>&1 &
+    LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i "input_file.so -f ${DIR}/${STREAM_DIR} -n pic.jpg" -o "output_http.so -w ${SRC}/www" > "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}" 2>&1 &
 fi
 
 # make log dir for images/videos if it does not exist (-p)
@@ -92,4 +101,4 @@ echo "$0: directory for log-files created: ${DIR}/${REC_DIR}/"
 
 # start video and image capture by motion sensor
 echo "$0: start motion detection"
-sudo ./src/alarm_system.py -m 15 --recordings "${DIR}/${REC_DIR}/" --stream "${DIR}/${STREAM_DIR}/pic.jpg" > "${DIR}/${LOG_DIR}/${LOG_FILE_ALARM}" 2>&1 &
+sudo ${SRC}/src/alarm_system.py -m 15 --recordings "${DIR}/${REC_DIR}/" --stream "${DIR}/${STREAM_DIR}/pic.jpg" > "${DIR}/${LOG_DIR}/${LOG_FILE_ALARM}" 2>&1 &

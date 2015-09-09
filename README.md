@@ -14,6 +14,7 @@ network stream (mjpg) is provided on port 8080.
       detected
 - [X] provide interface for live stream (via mjpg streamer)
 - [X] capture images for mjpg streamer
+- [X] start alarm-system at reboot
 - [ ] mount server and save data to server
 
 
