@@ -84,6 +84,10 @@ done
 mkdir -p "${DIR}/${LOG_DIR}"
 echo "$0: directory for log-files created: ${DIR}/${LOG_DIR}/"
 
+# backup existing logs
+cp "${DIR}/${LOG_DIR}/${LOG_FILE_ALARM}" "${DIR}/${LOG_DIR}/${LOG_FILE_ALARM}.bak.$(date +%F)" 
+cp "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}" "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}.bak.$(date +%F)"
+
 # provide lifestream
 if [ $flag_l -eq 1 ]
 then

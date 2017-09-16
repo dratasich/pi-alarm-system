@@ -44,7 +44,7 @@ class CameraController:
 
         # save path where videos and images should be logged
         self._path = path
-        logging.debug('CameraController: videos/images will be saved to ' + path)
+        logging.info('CameraController: videos/images will be saved to ' + path)
 
         # motion detection with camera
         if motion_callback is None:

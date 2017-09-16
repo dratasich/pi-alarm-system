@@ -56,7 +56,7 @@ if args.alarm_pin is not None:
 root = logging.getLogger()
 root.setLevel(logging.DEBUG)
 ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.INFO)
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)5s]: %(message)s')
 ch.setFormatter(formatter)
 root.addHandler(ch)
@@ -92,6 +92,8 @@ try:
     # init camera
     cam = CameraController(path=args.recordings,
                            motion_callback=callback_motion_camera)
+
+    logging.debug('Alarm system starts.')
 
     # do the stuff to do
     while True:
