@@ -92,7 +92,7 @@ then
     echo "$0: directory for stream created: ${DIR}/${STREAM_DIR}/"
 
     # start mjpg-streamer (uses pic.jpg in stream directory as input)
-    LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i "input_file.so -f ${DIR}/${STREAM_DIR} -n pic.jpg" -o "output_http.so -w ${SRC}/www" > "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}" 2>&1 &
+    LD_LIBRARY_PATH=/usr/local/lib mjpg_streamer -i "input_file.so -f ${DIR}/${STREAM_DIR} -n pic.jpg" -o "output_http.so -w ${SRC}/www-stream" > "${DIR}/${LOG_DIR}/${LOG_FILE_STREAM}" 2>&1 &
 fi
 
 # make log dir for images/videos if it does not exist (-p)
