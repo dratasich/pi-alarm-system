@@ -25,11 +25,26 @@ PIN_ALARM = 16          ## additional pin from the alarm system switch
 
 # parse arguments for individual settings
 argparser = argparse.ArgumentParser()
-group = argparser.add_mutually_exclusive_group(required=True)
-group.add_argument('-m', '--motion_pin', type=int, help='GPIO pin number (board) where motion sensor is connected to trigger capturing and recording. Check valid pins at http://pi.gadgetoid.com/pinout.')
-group.add_argument('-a', '--alarm_pin', type=int, help='GPIO pin number (board) where alarm system is connected to trigger capturing and recording. Check valid pins at http://pi.gadgetoid.com/pinout.')
-argparser.add_argument('--recordings', required=True, help='Path to the directory where the images/videos should be saved when motion is detected.')
-argparser.add_argument('--stream', required=True, help='Path to the picture that is used by the mjpg streamer.')
+group = argparser.add_mutually_exclusive_group(required=False)
+group.add_argument('-m', '--motion_pin', type=int,
+                   help="""GPIO pin number (board) where motion sensor
+                   is connected to trigger capturing and
+                   recording. Check valid pins at
+                   http://pi.gadgetoid.com/pinout.""")
+group.add_argument('-a', '--alarm_pin', type=int,
+                   help="""GPIO pin number (board) where alarm system
+                   is connected to trigger capturing and
+                   recording. Check valid pins at
+                   http://pi.gadgetoid.com/pinout.""")
+argparser.add_argument('-c', '--camera_motion', action='store_true',
+                       help="""Perform motion detection with camera.""")
+argparser.add_argument('--recordings', required=True,
+                       help="""Path to the directory where the
+                       images/videos should be saved when motion is
+                       detected.""")
+argparser.add_argument('--stream', required=True,
+                       help="""Path to the picture that is used by the
+                       mjpg streamer.""")
 args = argparser.parse_args()
 
 if args.motion_pin is not None:
@@ -58,6 +73,15 @@ def callback_motion_sensor():
         logging.info('Motion sensor: detection!')
         alarm = True
 
+##
+# @brief Called when motion is detected in subsequent camera images.
+##
+def callback_motion_camera():
+    global alarm
+    if not alarm:
+        logging.info('Camera: motion detection!')
+        alarm = True
+
 # main
 try:
     # init motion sensor
@@ -66,7 +90,8 @@ try:
     logging.info('Make sure the motion sensor is connected to GPIO pin ' + str(PIN_MOTION_SENSOR) + '.')
 
     # init camera
-    cam = CameraController(path=args.recordings)
+    cam = CameraController(path=args.recordings,
+                           motion_callback=callback_motion_camera)
 
     # do the stuff to do
     while True:
@@ -78,6 +103,7 @@ try:
             cam.wait(0.5) # wait 50% of video length
             cam.write_video()
             logging.info('Capturing done.')
+            alarm = False
 
 except RuntimeWarning as e:
     logging.warn(e)
